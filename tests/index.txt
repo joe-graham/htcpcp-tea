@@ -1,1 +1,2 @@
 BREW /
+Content-Type: message/teapot
