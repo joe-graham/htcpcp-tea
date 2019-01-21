@@ -52,8 +52,26 @@ def brewHandler(file_pointer, uri):
             print("418 I'm a teapot")
             file_pointer.close()
             return
+    
+    elif headerDict["Content-Type"] == "message/teapot":
+        if uri == "/":
+            print("200 OK")
+            print("Alternates: ", end='')
+            for tea in ["peppermint", "black", "green", "earl-grey"]:
+                print("{\"" + str(tea) + "\" {type message/teapot}}", end='')
+                if tea != "earl-grey": print(",")
+            print()
+            file_pointer.close()
+            return
 
-    print("200 OK")
+        else:
+            # TODO: handle responding correctly to teas supported
+            raise NotImplementedError("Tea not ready yet")
+
+    else:
+        print("400 Bad Request")
+
+    print("403 Forbidden")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

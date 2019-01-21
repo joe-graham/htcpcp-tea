@@ -26,5 +26,23 @@ class ParserTests(unittest.TestCase):
         output = out.getvalue().strip()
         self.assertEqual(output, "418 I'm a teapot")
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_bad_request(self):
+        out = StringIO()
+        sys.stdout = out
+        parser.main("tests/bad_request.txt")
+        output = out.getvalue().strip()
+        self.assertEqual(output, "400 Bad Request")
+
+    def test_index(self):
+        out = StringIO()
+        sys.stdout = out
+        parser.main("tests/index.txt")
+        output = out.getvalue().strip()
+        expectedOutput = "200 OK\n" \
+                         "Alternates: {\"peppermint\" {type message/teapot}},\n" \
+                         "{\"black\" {type message/teapot}},\n" \
+                         "{\"green\" {type message/teapot}},\n" \
+                         "{\"earl-grey\" {type message/teapot}}"
+        self.assertEqual(output, expectedOutput)
+
+if __name__ == '__main__':    unittest.main()
