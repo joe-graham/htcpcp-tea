@@ -2,7 +2,7 @@
 This is an implementation of a parser for the HTCPCP-TEA (Hypertext Coffee Pot Control Protocol-Tea Efflux Appliances) protocol.
 This is part of a three part assignment implementing a working server for this protocol.
 
-## Dependencie
+## Dependencies
 This implementation is written in Python 3.7, but should be compatible with any version of Python 3, as only standard libraries are used.
 
 ## Execution instructions
