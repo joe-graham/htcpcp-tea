@@ -1,0 +1,4 @@
+BREW /pot-0/chai
+Content-Type: message/teapot
+
+start

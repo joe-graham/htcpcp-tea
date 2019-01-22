@@ -1,0 +1,4 @@
+BREW /pot-0/raspberry
+Content-Type: message/teapot
+
+start

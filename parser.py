@@ -29,7 +29,8 @@ def main(filename):
         return
 
 def brew_handler(filePointer, uri):
-    """ Begin parsing headers, erroring out if anything bad is found.
+    """ Begin parsing headers into dict, erroring out if anything bad is found.
+    Also verifies that the URI is valid, and turns away confused coffee drinkers.
     filePointer - the pointer to the open file reperesenting the HTCPCP request
     uri - The already parsed URI for the request
     """
@@ -73,6 +74,11 @@ def brew_handler(filePointer, uri):
                 if tea != "earl-grey": print(",")
             print()
             filePointer.close()
+        # If URI has only one slash, the client is trying to find a coffee pot
+        elif len(uri.split("/")) == 2:
+            print("418 I'm a teapot")
+            filePointer.close()
+            return
         else:
             tea_handler(uri, headerDict, filePointer)
 
@@ -82,6 +88,12 @@ def brew_handler(filePointer, uri):
         return
 
 def tea_handler(uri, headerDict, filePointer):
+    """Handles access control to forbidden teas, verification of additions, and body validation.
+    """
+    if uri.split("/")[2] in ["chai", "raspberry", "oolong"]:
+        print("403 Forbidden")
+        filePointer.close()
+        return
     if "Accept-Additions" in headerDict:
         dairyAdditions = ["Cream", "Half-and-half", "Whole-milk", "Part-skim", "Skim", "Non-Dairy"]
         dairyFound = False
