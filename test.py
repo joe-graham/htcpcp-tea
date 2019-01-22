@@ -102,7 +102,7 @@ class ParserTests(unittest.TestCase):
    def test_forbidden(self):
       out = StringIO()
       sys.stdout = out
-      parser.main("tests/forbidden_2.txt")
+      parser.main("tests/forbidden_1.txt")
       output = out.getvalue().strip()
       self.assertEqual(output, "403 Forbidden")
 
@@ -114,7 +114,7 @@ class ParserTests(unittest.TestCase):
 
       out = StringIO()
       sys.stdout = out
-      parser.main("tests/forbidden_2.txt")
+      parser.main("tests/forbidden_3.txt")
       output = out.getvalue().strip()
       self.assertEqual(output, "403 Forbidden")
 
@@ -131,5 +131,12 @@ class ParserTests(unittest.TestCase):
       parser.main("tests/post.txt")
       output = out.getvalue().strip()
       self.assertEqual(output, "200 OK")
+
+   def test_invalid_content_type(self):
+      out = StringIO()
+      sys.stdout = out
+      parser.main("tests/invalid_content_type.txt")
+      output = out.getvalue().strip()
+      self.assertEqual(output, "400 Bad Request")
 
 if __name__ == '__main__':    unittest.main()
