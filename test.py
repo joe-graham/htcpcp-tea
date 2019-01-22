@@ -50,14 +50,14 @@ class ParserTests(unittest.TestCase):
        sys.stdout = out
        parser.main("tests/accept_additions_repeated.txt")
        output = out.getvalue().strip()
-       self.assertEqual(output, "400 Bad Request") 
+       self.assertEqual(output, "406 Not Acceptable") 
 
     def test_two_of_a_kind(self):
        out = StringIO()
        sys.stdout = out
        parser.main("tests/accept_additions_two_of_a_kind.txt")
        output = out.getvalue().strip()
-       self.assertEqual(output, "400 Bad Request")
+       self.assertEqual(output, "406 Not Acceptable")
     
     def test_additions_1(self):
        out = StringIO()
@@ -79,5 +79,19 @@ class ParserTests(unittest.TestCase):
        parser.main("tests/accept_additions_3.txt")
        output = out.getvalue().strip()
        self.assertEqual(output, "200 OK")
-       
+
+    def test_start(self):
+       out = StringIO()
+       sys.stdout = out
+       parser.main("tests/start.txt")
+       output = out.getvalue().strip()
+       self.assertEqual(output, "200 OK")
+
+    def test_stop(self):
+       out = StringIO()
+       sys.stdout = out
+       parser.main("tests/stop.txt")
+       output = out.getvalue().strip()
+       self.assertEqual(output, "200 OK")
+
 if __name__ == '__main__':    unittest.main()

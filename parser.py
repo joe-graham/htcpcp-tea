@@ -95,13 +95,13 @@ def tea_handler(uri, headerDict, filePointer):
         for addition in headerDict["Accept-Additions"]:
             if (addition not in dairyAdditions and addition not in syrupAdditions and
             addition not in alcoholAdditions and addition not in sweetAdditions):
-                print("400 Bad Request")
+                print("406 Not Acceptable")
                 filePointer.close()
                 return
             else:
                 if ((addition in dairyAdditions and dairyFound) or (addition in syrupAdditions and syrupFound) 
                 or (addition in alcoholAdditions and alcoholFound) or (addition in sweetAdditions and sweetFound)):
-                    print("400 Bad Request")
+                    print("406 Not Acceptable")
                     filePointer.close()
                     return
                 else:
@@ -109,7 +109,12 @@ def tea_handler(uri, headerDict, filePointer):
                     elif addition in syrupAdditions: syrupFound = True
                     elif addition in alcoholAdditions: alcoholFound = True
                     else: sweetFound = True
-    print("200 OK")
+    # Check body of request to see if it has a start or stop command
+    body = filePointer.readline()
+    if body != "start" and body != "stop":
+        print("400 Bad Request")
+    else:
+        print("200 OK")
     filePointer.close()
     return
 
