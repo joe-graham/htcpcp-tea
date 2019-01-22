@@ -1,0 +1,5 @@
+BREW /pot-0/black
+Content-Type: message/teapot
+Accept-Additions: Whole-milk; Whole-milk; Vanilla; Sugar
+
+start

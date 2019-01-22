@@ -38,11 +38,46 @@ class ParserTests(unittest.TestCase):
         sys.stdout = out
         parser.main("tests/index.txt")
         output = out.getvalue().strip()
-        expectedOutput = "200 OK\n" \
+        expectedOutput = "300 Multiple Options\n" \
                          "Alternates: {\"peppermint\" {type message/teapot}},\n" \
                          "{\"black\" {type message/teapot}},\n" \
                          "{\"green\" {type message/teapot}},\n" \
                          "{\"earl-grey\" {type message/teapot}}"
         self.assertEqual(output, expectedOutput)
 
+    def test_repeated(self):
+       out = StringIO()
+       sys.stdout = out
+       parser.main("tests/accept_additions_repeated.txt")
+       output = out.getvalue().strip()
+       self.assertEqual(output, "400 Bad Request") 
+
+    def test_two_of_a_kind(self):
+       out = StringIO()
+       sys.stdout = out
+       parser.main("tests/accept_additions_two_of_a_kind.txt")
+       output = out.getvalue().strip()
+       self.assertEqual(output, "400 Bad Request")
+    
+    def test_additions_1(self):
+       out = StringIO()
+       sys.stdout = out
+       parser.main("tests/accept_additions_1.txt")
+       output = out.getvalue().strip()
+       self.assertEqual(output, "200 OK")
+    
+    def test_additions_2(self):
+       out = StringIO()
+       sys.stdout = out
+       parser.main("tests/accept_additions_2.txt")
+       output = out.getvalue().strip()
+       self.assertEqual(output, "200 OK")
+    
+    def test_additions_3(self):
+       out = StringIO()
+       sys.stdout = out
+       parser.main("tests/accept_additions_3.txt")
+       output = out.getvalue().strip()
+       self.assertEqual(output, "200 OK")
+       
 if __name__ == '__main__':    unittest.main()

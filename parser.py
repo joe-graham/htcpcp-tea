@@ -3,6 +3,9 @@
 import sys
 
 def main(filename):
+    """ Start everything off, doing minor method checks.
+    Optionally accepts a filename parameter to simplify unit testing.
+    """
     try:
         filePointer = open(filename, "r")
         
@@ -16,7 +19,7 @@ def main(filename):
     uri = methodLine[1]
 
     if method == "BREW" or method == "POST":
-        brewHandler(filePointer, uri)
+        brew_handler(filePointer, uri)
     else:
         print("405 Method Not Allowed")
         filePointer.close()
@@ -27,51 +30,90 @@ def main(filename):
         do something
     """
 
-def brewHandler(file_pointer, uri):
+def brew_handler(filePointer, uri):
+    """ Begin parsing headers, erroring out if anything bad is found.
+    filePointer - the pointer to the open file reperesenting the HTCPCP request
+    uri - The already parsed URI for the request
+    """
     headerDict = dict()
     # Parse headers into a map, breaking if empty line reached (start of body)
-    for line in file_pointer:
+    for line in filePointer:
         if line == "\n":
             break
         # TODO: add exception handling
         lineSplit = line.split(":")
-        headerDict[lineSplit[0]] = lineSplit[1].strip()
+        if lineSplit[0] == "Accept-Additions":
+            headerDict[lineSplit[0]] = lineSplit[1].strip().split(";")
+            # lstrip removes space caused by spaces in between each addition
+            for index, addition in enumerate(headerDict[lineSplit[0]]):
+                headerDict[lineSplit[0]][index] = addition.lstrip()
+        else:
+            headerDict[lineSplit[0]] = lineSplit[1].strip()
     
     if "Content-Type" not in headerDict.keys():
         print("400 Bad Request")
-        file_pointer.close()
+        filePointer.close()
         return
     
     if headerDict["Content-Type"] == "message/coffee-pot-command":
         # If URI has two slashes, it's trying to access a tea pot, and needs a 400
         if len(uri.split("/")) == 3:
             print("400 Bad Request")
-            file_pointer.close()
+            filePointer.close()
             return
         else:
             print("418 I'm a teapot")
-            file_pointer.close()
+            filePointer.close()
             return
     
     elif headerDict["Content-Type"] == "message/teapot":
         if uri == "/":
-            print("200 OK")
+            print("300 Multiple Options")
             print("Alternates: ", end='')
             for tea in ["peppermint", "black", "green", "earl-grey"]:
                 print("{\"" + str(tea) + "\" {type message/teapot}}", end='')
                 if tea != "earl-grey": print(",")
             print()
-            file_pointer.close()
-            return
-
+            filePointer.close()
         else:
-            # TODO: handle responding correctly to teas supported
-            raise NotImplementedError("Tea not ready yet")
+            tea_handler(uri, headerDict, filePointer)
 
     else:
         print("400 Bad Request")
+        filePointer.close()
+        return
 
-    print("403 Forbidden")
+def tea_handler(uri, headerDict, filePointer):
+    if "Accept-Additions" in headerDict:
+        dairyAdditions = ["Cream", "Half-and-half", "Whole-milk", "Part-skim", "Skim", "Non-Dairy"]
+        dairyFound = False
+        syrupAdditions = ["Vanilla", "Almond", "Raspberry", "Chocolate"]
+        syrupFound = False
+        alcoholAdditions = ["Whisky", "Rum", "Kahlua", "Aquavit"]
+        alcoholFound = False
+        sweetAdditions = ["Sugar", "Xylitol", "Stevia"]
+        sweetFound = False
+        # Iterate over each addition, testing to see if the addition is allowed, and if we've already seen it
+        for addition in headerDict["Accept-Additions"]:
+            if (addition not in dairyAdditions and addition not in syrupAdditions and
+            addition not in alcoholAdditions and addition not in sweetAdditions):
+                print("400 Bad Request")
+                filePointer.close()
+                return
+            else:
+                if ((addition in dairyAdditions and dairyFound) or (addition in syrupAdditions and syrupFound) 
+                or (addition in alcoholAdditions and alcoholFound) or (addition in sweetAdditions and sweetFound)):
+                    print("400 Bad Request")
+                    filePointer.close()
+                    return
+                else:
+                    if addition in dairyAdditions: dairyFound = True
+                    elif addition in syrupAdditions: syrupFound = True
+                    elif addition in alcoholAdditions: alcoholFound = True
+                    else: sweetFound = True
+    print("200 OK")
+    filePointer.close()
+    return
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
