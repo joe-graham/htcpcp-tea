@@ -20,15 +20,13 @@ def main(filename):
 
     if method == "BREW" or method == "POST":
         brew_handler(filePointer, uri)
+    elif method == "GET":
+        print("200 OK")
+        return
     else:
         print("405 Method Not Allowed")
         filePointer.close()
         return
-
-    """
-    elif method == "GET":
-        do something
-    """
 
 def brew_handler(filePointer, uri):
     """ Begin parsing headers, erroring out if anything bad is found.
