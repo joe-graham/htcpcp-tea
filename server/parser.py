@@ -22,10 +22,15 @@ def main(filename):
     if method == "BREW" or method == "POST":
         parse_request(filePointer, uri)
     elif method == "GET":
-        print("200 OK")
+        print("HTCPCP-TEA/1.0 200 OK", end="\r\n")
+        print("", end="\r\n")
+        print("", end="\r\n")
+        filePointer.close()
         return
     else:
-        print("405 Method Not Allowed")
+        print("HTCPCP-TEA/1.0 405 Method Not Allowed", end="\r\n")
+        print("", end="\r\n")
+        print("", end="\r\n")
         filePointer.close()
         return
 
@@ -59,40 +64,53 @@ def parse_request(filePointer, uri):
             headerDict[lineSplit[0]] = lineSplit[1].strip()
     
     if "Content-Type" not in headerDict.keys():
-        print("400 Bad Request")
+        print("HTCPCP-TEA/1.0 400 Bad Request", end="\r\n")
+        print("", end="\r\n")
+        print("", end="\r\n")
         filePointer.close()
         return
     
     if headerDict["Content-Type"] == "message/coffee-pot-command":
         # If URI has two slashes, it's trying to access a tea pot, and needs a 400
         if len(uri.split("/")) == 3:
-            print("400 Bad Request")
+            print("HTCPCP-TEA/1.0 400 Bad Request", end="\r\n")
             filePointer.close()
+            print("", end="\r\n")
+            print("", end="\r\n")
             return
         else:
-            print("418 I'm a teapot")
+            print("HTCPCP-TEA/1.0 418 I'm a teapot", end="\r\n")
+            print("", end="\r\n")
+            print("", end="\r\n")
             filePointer.close()
             return
     
     elif headerDict["Content-Type"] == "message/teapot":
         if uri == "/":
-            print("300 Multiple Options")
+            print("HTCPCP-TEA/1.0 300 Multiple Options", end="\r\n")
             print("Alternates: ", end='')
             for tea in ["peppermint", "black", "green", "earl-grey"]:
                 print("{\"" + str(tea) + "\" {type message/teapot}}", end='')
-                if tea != "earl-grey": print(",")
-            print()
+                if tea != "earl-grey": print(",", end="\r\n")
+            print("", end="\r\n")
+            print("", end="\r\n")
+            print("", end="\r\n")
             filePointer.close()
+            return
         # If URI has only one slash, the client is trying to find a coffee pot
         elif len(uri.split("/")) == 2:
-            print("418 I'm a teapot")
+            print("HTCPCP-TEA/1.0 418 I'm a teapot", end="\r\n")
+            print("", end="\r\n")
+            print("", end="\r\n")
             filePointer.close()
             return
         else:
             request_handler(uri, headerDict, filePointer)
 
     else:
-        print("400 Bad Request")
+        print("HTCPCP-TEA/1.0 400 Bad Request", end="\r\n")
+        print("", end="\r\n")
+        print("", end="\r\n")
         filePointer.close()
         return
 
@@ -100,7 +118,9 @@ def request_handler(uri, headerDict, filePointer):
     """Handles access control to forbidden teas, verification of additions, and body validation.
     """
     if uri.split("/")[2] in ["chai", "raspberry", "oolong"]:
-        print("403 Forbidden")
+        print("HTCPCP-TEA/1.0 403 Forbidden", end="\r\n")
+        print("", end="\r\n")
+        print("", end="\r\n")
         filePointer.close()
         return
     if "Accept-Additions" in headerDict:
@@ -116,13 +136,17 @@ def request_handler(uri, headerDict, filePointer):
         for addition in headerDict["Accept-Additions"]:
             if (addition not in dairyAdditions and addition not in syrupAdditions and
             addition not in alcoholAdditions and addition not in sweetAdditions):
-                print("406 Not Acceptable")
+                print("HTCPCP-TEA/1.0 406 Not Acceptable", end="\r\n")
+                print("", end="\r\n")
+                print("", end="\r\n")
                 filePointer.close()
                 return
             else:
                 if ((addition in dairyAdditions and dairyFound) or (addition in syrupAdditions and syrupFound) 
                 or (addition in alcoholAdditions and alcoholFound) or (addition in sweetAdditions and sweetFound)):
-                    print("406 Not Acceptable")
+                    print("HTCPCP-TEA/1.0 406 Not Acceptable", end="\r\n")
+                    print("", end="\r\n")
+                    print("", end="\r\n")
                     filePointer.close()
                     return
                 else:
@@ -137,12 +161,14 @@ def request_handler(uri, headerDict, filePointer):
         print("HTCPCP-TEA/1.0 400 Bad Request", end="\r\n")
         print("", end="\r\n")
         print("", end="\r\n")
-        filePointer.close()
-        return
     if decodeBody != "start\r\n" and decodeBody != "stop\r\n":
-        print("400 Bad Request")
+        print("HTCPCP-TEA/1.0 400 Bad Request", end="\r\n")
+        print("", end="\r\n")
+        print("", end="\r\n")
     else:
-        print("200 OK")
+        print("HTCPCP-TEA/1.0 200 OK", end="\r\n")
+        print("", end="\r\n")
+        print("", end="\r\n")
     filePointer.close()
     return
 
