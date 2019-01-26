@@ -1,0 +1,4 @@
+BREW /pot-0/peppermint
+Content-Type: message/teapot
+
+stop

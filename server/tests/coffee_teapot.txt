@@ -1,0 +1,2 @@
+BREW /pot-0/black
+Content-Type: message/coffee-pot-command
