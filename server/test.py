@@ -139,4 +139,11 @@ class ParserTests(unittest.TestCase):
       output = out.getvalue().strip()
       self.assertEqual(output, "400 Bad Request")
 
+   def test_bad_newline(self):
+      out = StringIO()
+      sys.stdout = out
+      parser.main("tests/malformed_newlines.txt")
+      output = out.getvalue().strip()
+      self.assertEqual(output, "HTCPCP-TEA/1.0 400 Bad Request")
+
 if __name__ == '__main__':    unittest.main()

@@ -40,14 +40,14 @@ def parse_request(filePointer, uri):
     for line in filePointer:
         decodedLine = line.decode("UTF-8")
         # CR LF parsing
-        if line[-1] != 10 and line[-2] != 13:
+        if line[-1] != 10 or line[-2] != 13:
             print("HTCPCP-TEA/1.0 400 Bad Request", end="\r\n")
             print("", end="\r\n")
             print("", end="\r\n")
             filePointer.close()
             return
         if decodedLine == "\r\n":
-            request_handler(uri, headerDict, filePointer)
+            break
         # TODO: add exception handling
         lineSplit = decodedLine.split(":")
         if lineSplit[0] == "Accept-Additions":
