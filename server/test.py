@@ -106,7 +106,7 @@ class ParserTests(unittest.TestCase):
    def test_post(self):
       request = self.read_file("tests/post.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"])
 
    def test_invalid_content_type(self):
       request = self.read_file("tests/invalid_content_type.txt")

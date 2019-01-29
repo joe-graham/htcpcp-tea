@@ -15,10 +15,15 @@ def main(request):
     method = methodLineSplit[0]
     uri = methodLineSplit[1]
     response = []
+    # modularity, since POST handling changes in the next assignment
+    MODE = "deprecated"
 
-    if method == "BREW" or method == "POST":
+    if method == "BREW":
         request.remove(request[0])
         response = parse_request(request, uri)
+        return response
+    elif method == "POST" and MODE == "deprecated":
+        response = ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"]
         return response
     elif method == "GET":
         response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"]
