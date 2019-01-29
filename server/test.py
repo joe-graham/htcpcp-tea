@@ -4,146 +4,118 @@ import sys
 from io import StringIO
 
 class ParserTests(unittest.TestCase):
-    
-   def missing_content_type(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/missing_content_type.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 400 Bad Request\r\n\r\n")
+   def read_file(self, filename):
+      try:
+         filePointer = open(filename, "rb")
+        
+      except IOError:
+         print("Unable to open file!")
+         exit(1)
+      inputArray = []
+      for line in filePointer:
+         inputArray.append(line)
+      filePointer.close()
+      return inputArray
+      
+   def test_missing_content_type(self):
+      request = self.read_file("tests/missing_content_type.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"])
 
    def test_coffee_teapot(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/coffee_teapot.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 400 Bad Request\r\n\r\n")
+      request = self.read_file("tests/coffee_teapot.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"])
 
    def test_teapot_coffee(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/teapot_coffee.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 418 I'm a teapot\r\n\r\n")
+      request = self.read_file("tests/teapot_coffee.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 418 I'm a teapot", "\r\n", "\r\n"])
     
    def test_coffee(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/coffee.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 418 I'm a teapot\r\n\r\n")
+      request = self.read_file("tests/coffee.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 418 I'm a teapot", "\r\n", "\r\n"])
 
    def test_bad_request(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/bad_request.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 400 Bad Request\r\n\r\n")
+      request = self.read_file("tests/bad_request.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"])
 
    def test_index(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/index.txt", sys.stdout)
-      output = out.getvalue()
-      expectedOutput = "HTCPCP-TEA/1.0 300 Multiple Options\r\n" \
-                        "Alternates: {\"peppermint\" {type message/teapot}},\r\n" \
-                        "{\"black\" {type message/teapot}},\r\n" \
-                        "{\"green\" {type message/teapot}},\r\n" \
-                        "{\"earl-grey\" {type message/teapot}}\r\n\r\n" 
+      request = self.read_file("tests/index.txt")
+      output = parser.main(request)
+      expectedOutput = ["HTCPCP-TEA/1.0 300 Multiple Options\r\n",
+                        "Alternates: ", "{\"peppermint\" {type message/teapot}}", ",\r\n",
+                        "{\"black\" {type message/teapot}}", ",\r\n",
+                        "{\"green\" {type message/teapot}}", ",\r\n",
+                        "{\"earl-grey\" {type message/teapot}}", "\r\n", "\r\n"]
       self.assertEqual(output, expectedOutput)
 
    def test_repeated(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/accept_additions_repeated.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 406 Not Acceptable\r\n\r\n") 
+      request = self.read_file("tests/accept_additions_repeated.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 406 Not Acceptable", "\r\n", "\r\n"]) 
 
    def test_two_of_a_kind(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/accept_additions_two_of_a_kind.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 406 Not Acceptable\r\n\r\n")
+      request = self.read_file("tests/accept_additions_two_of_a_kind.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 406 Not Acceptable", "\r\n", "\r\n"])
     
    def test_additions(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/accept_additions_1.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 200 OK\r\n\r\n")
+      request = self.read_file("tests/accept_additions_1.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
 
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/accept_additions_2.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 200 OK\r\n\r\n")
+      request = self.read_file("tests/accept_additions_2.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
     
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/accept_additions_3.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 200 OK\r\n\r\n")
+      request = self.read_file("tests/accept_additions_3.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
 
    def test_start(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/start.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 200 OK\r\n\r\n")
+      request = self.read_file("tests/start.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
 
    def test_stop(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/stop.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 200 OK\r\n\r\n")
+      request = self.read_file("tests/stop.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
 
    def test_forbidden(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/forbidden_1.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 403 Forbidden\r\n\r\n")
+      request = self.read_file("tests/forbidden_1.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"])
 
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/forbidden_2.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 403 Forbidden\r\n\r\n")
+      request = self.read_file("tests/forbidden_2.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"])
 
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/forbidden_3.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 403 Forbidden\r\n\r\n")
+      request = self.read_file("tests/forbidden_3.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"])
 
    def test_body(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/invalid_body.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 400 Bad Request\r\n\r\n")
+      request = self.read_file("tests/invalid_body.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"])
 
    def test_post(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/post.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 200 OK\r\n\r\n")
+      request = self.read_file("tests/post.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
 
    def test_invalid_content_type(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/invalid_content_type.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 400 Bad Request\r\n\r\n")
+      request = self.read_file("tests/invalid_content_type.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"])
 
    def test_bad_newline(self):
-      out = StringIO()
-      sys.stdout = out
-      parser.main("tests/malformed_newlines.txt", sys.stdout)
-      output = out.getvalue()
-      self.assertEqual(output, "HTCPCP-TEA/1.0 400 Bad Request\r\n\r\n")
+      request = self.read_file("tests/malformed_newlines.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"])
 
 if __name__ == '__main__':    unittest.main()

@@ -1,2 +1,4 @@
 BREW /pot-0
 Content-Type: message/teapot
+
+start

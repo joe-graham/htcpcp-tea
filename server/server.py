@@ -7,12 +7,22 @@ import parser
 
 def main(ip, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind((ip, port))
+    sock.bind((ip, int(port)))
     sock.listen(5)
     while True:
-        request = sock.accept()
-        request_handler = threading.Thread(target=parser.main, args=(request,request))
+        request, _ = sock.accept()
+        request_handler = threading.Thread(target=handle_connection, args=(request,))
         request_handler.start()
+    return
+
+def handle_connection(socket):
+    buffer = b""
+    while True:
+        data = socket.recv(2048)
+        if data:
+            buffer += data
+        else: break
+    print(buffer)
     return
 
 if __name__ == "__main__":
