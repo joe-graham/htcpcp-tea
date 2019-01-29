@@ -22,7 +22,25 @@ def handle_connection(socket):
         if data:
             buffer += data
         else: break
-    print(buffer)
+    buffer = buffer.decode("UTF-8")
+    splitStr = ""
+    request = []
+    # convert bytes read in to request format, splitting on the new line
+    # each array has each line of the request, including the /r/n, which
+    # is normally stripped by .split().
+    while True:
+        if buffer == "":
+            break
+        splitStr += buffer[0]
+        if buffer[0] == "\n":
+            # had to open files as rb in parser, sending splitStr as
+            # bytes avoids having to re-write that stuff
+            request.append(bytes(splitStr, "UTF-8"))
+            splitStr = ""
+        buffer = buffer[1:]
+    response = parser.main(request)
+    for line in response:
+        socket.send(bytes(line, "UTF-8"))
     return
 
 if __name__ == "__main__":
