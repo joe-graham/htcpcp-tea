@@ -2,11 +2,17 @@
 
 import sys
 import socket
+import threading
+import parser
 
 def main(ip, port):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((ip, port))
     sock.listen(5)
+    while True:
+        request = sock.accept()
+        request_handler = threading.Thread(target=parser.main, args=(request,request))
+        request_handler.start()
     return
 
 if __name__ == "__main__":
