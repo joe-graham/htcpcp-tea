@@ -1,6 +1,8 @@
 *.code-workspace
 *.pdf
 .vscode/
+pot-*
+pot-*/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
