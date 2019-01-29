@@ -1,0 +1,5 @@
+BREW /pot-1
+Content-Type: message/coffee-pot-command
+Accept-Additions: Cream; Almond; Rum; Xylitol
+
+start

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import sys
+import os
+import json
 
 def main(request):
     """ Start everything off, doing minor method checks.
@@ -81,7 +83,7 @@ def parse_request(request, uri):
             response = ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"]
             return response
         else:
-            response = ["HTCPCP-TEA/1.0 418 I'm a teapot", "\r\n", "\r\n"]
+            response = request_handler(uri, headerDict, request)
             return response
     
     elif headerDict["Content-Type"] == "message/teapot":
@@ -109,9 +111,11 @@ def request_handler(uri, headerDict, request):
     """Handles access control to forbidden teas, verification of additions, and body validation.
     """
     response = []
-    if uri.split("/")[2] in ["chai", "raspberry", "oolong"]:
-        response = ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"]
-        return response
+    # only verify this if brewing tea
+    if len(uri.split("/")) == 3:
+        if uri.split("/")[2] in ["chai", "raspberry", "oolong"]:
+            response = ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"]
+            return response
     if "Accept-Additions" in headerDict:
         dairyAdditions = ["Cream", "Half-and-half", "Whole-milk", "Part-skim", "Skim", "Non-Dairy"]
         dairyFound = False
@@ -147,6 +151,48 @@ def request_handler(uri, headerDict, request):
         response = ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"]
         return response
     else:
+        # Create JSON file structure
+        # if tea, else coffee
+        if len(uri.split("/")) == 3:
+            dirName = uri.split("/")[1]
+            fileName = uri.split("/")[2]
+            ls = os.listdir('.')
+            for item in ls:
+                if item == "dirName" and os.path.isdir(item):
+                    response = ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"]
+                    return response
+            os.mkdir("./" + dirName)
+            out = {"type": "tea"}
+            out["variety"] = fileName
+            out["Additions"] = {}
+            if "Accept-Additions" in headerDict:
+                counter = 1
+                for item in headerDict["Accept-Additions"]:
+                    key = "addition" + str(counter)
+                    out["Additions"][key] = item
+                    counter += 1
+            newFile = open("./" + dirName + "/" + fileName, mode="w")
+            json.dump(out, newFile, indent=4)
+            newFile.close()
+        else:
+            fileName = uri.split("/")[1]
+            ls = os.listdir('.')
+            for item in ls:
+                if item == "dirName" and os.path.isdir(item):
+                    response = ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"]
+                    return response
+            out = {"type": "coffee"}
+            out["Additions"] = {}
+            if "Accept-Additions" in headerDict:
+                counter = 1
+                for item in headerDict["Accept-Additions"]:
+                    key = "addition" + str(counter)
+                    out["Additions"][key] = item
+                    counter += 1
+            newFile = open("./" + fileName, mode="w")
+            json.dump(out, newFile, indent=4)
+            newFile.close()
+
         response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"]
         return response
 

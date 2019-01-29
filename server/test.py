@@ -2,6 +2,7 @@ import unittest
 import parser
 import sys
 from io import StringIO
+import os
 
 class ParserTests(unittest.TestCase):
    def read_file(self, filename):
@@ -35,7 +36,8 @@ class ParserTests(unittest.TestCase):
    def test_coffee(self):
       request = self.read_file("tests/coffee.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 418 I'm a teapot", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      os.remove("./pot-0")
 
    def test_bad_request(self):
       request = self.read_file("tests/bad_request.txt")
@@ -66,24 +68,50 @@ class ParserTests(unittest.TestCase):
       request = self.read_file("tests/accept_additions_1.txt")
       output = parser.main(request)
       self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      os.remove("./pot-0/peppermint")
+      os.rmdir("./pot-0")
 
       request = self.read_file("tests/accept_additions_2.txt")
       output = parser.main(request)
       self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      os.remove("./pot-0/earl-grey")
+      os.rmdir("./pot-0")
     
       request = self.read_file("tests/accept_additions_3.txt")
       output = parser.main(request)
       self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      os.remove("./pot-1/peppermint")
+      os.rmdir("./pot-1")
+
+      request = self.read_file("tests/coffee_additions_1.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      os.remove("./pot-0")
+
+      request = self.read_file("tests/coffee_additions_2.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      os.remove("./pot-1")
+    
+      request = self.read_file("tests/coffee_additions_3.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      os.remove("./pot-0")
+
 
    def test_start(self):
       request = self.read_file("tests/start.txt")
       output = parser.main(request)
       self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      os.remove("./pot-0/peppermint")
+      os.rmdir("./pot-0")
 
    def test_stop(self):
       request = self.read_file("tests/stop.txt")
       output = parser.main(request)
       self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      os.remove("./pot-0/peppermint")
+      os.rmdir("./pot-0")
 
    def test_forbidden(self):
       request = self.read_file("tests/forbidden_1.txt")

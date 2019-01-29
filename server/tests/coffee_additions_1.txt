@@ -1,4 +1,6 @@
 BREW /pot-0
 Content-Type: message/coffee-pot-command
+Accept-Additions: Whole-milk; Vanilla; Sugar
 
 start
+

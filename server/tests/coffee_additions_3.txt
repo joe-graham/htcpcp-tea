@@ -1,4 +1,5 @@
 BREW /pot-0
 Content-Type: message/coffee-pot-command
+Accept-Additions: Half-and-half; Raspberry; Kahlua; Stevia
 
 start
