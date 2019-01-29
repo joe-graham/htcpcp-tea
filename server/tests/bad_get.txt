@@ -1,0 +1,3 @@
+GET /pot_not_found
+Content-Type: message/coffee-pot-command
+

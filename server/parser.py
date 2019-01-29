@@ -20,25 +20,23 @@ def main(request):
     # modularity, since POST handling changes in the next assignment
     MODE = "deprecated"
 
-    if method == "BREW":
+    if method == "BREW" or method == "GET":
         request.remove(request[0])
-        response = parse_request(request, uri)
+        response = parse_request(request, uri, method)
         return response
     elif method == "POST" and MODE == "deprecated":
         response = ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"]
-        return response
-    elif method == "GET":
-        response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"]
         return response
     else:
         response = ["HTCPCP-TEA/1.0 405 Method Not Allowed", "\r\n", "\r\n"]
         return response
 
-def parse_request(request, uri):
+def parse_request(request, uri, method):
     """ Begin parsing headers into dict, erroring out if anything bad is found.
     Also verifies that the URI is valid, and turns away confused coffee drinkers.
     request - array of strings representing request
     uri - The already parsed URI for the request
+    method - The method of the request, important for different handling purposes
     """
     headerDict = dict()
     response = []
@@ -83,7 +81,10 @@ def parse_request(request, uri):
             response = ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"]
             return response
         else:
-            response = request_handler(uri, headerDict, request)
+            if method == "BREW":
+                response = brew_handler(uri, headerDict, request)
+            elif method == "GET":
+                response = get_handler(uri, headerDict, request)
             return response
     
     elif headerDict["Content-Type"] == "message/teapot":
@@ -100,14 +101,17 @@ def parse_request(request, uri):
             response = ["HTCPCP-TEA/1.0 418 I'm a teapot", "\r\n", "\r\n"]
             return response
         else:
-            response = request_handler(uri, headerDict, request)
+            if method == "BREW":
+                response = brew_handler(uri, headerDict, request)
+            elif method == "GET":
+                response = get_handler(uri, headerDict, request)
             return response
 
     else:
         response = ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"]
         return response
 
-def request_handler(uri, headerDict, request):
+def brew_handler(uri, headerDict, request):
     """Handles access control to forbidden teas, verification of additions, and body validation.
     """
     response = []
@@ -195,6 +199,25 @@ def request_handler(uri, headerDict, request):
 
         response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"]
         return response
+
+def get_handler(uri, headerDict, request):
+    length = len(uri.split("/"))
+    # if tea, else coffee
+    if length == 3:
+        pot = uri.split("/")[1]
+        variety = uri.split("/")[2]
+        try:
+            os.stat("./" + pot + "/" + variety)
+        except FileNotFoundError:
+            response = ["HTCPCP-TEA/1.0 404 Not Found", "\r\n", "\r\n"]
+            return response
+    else:
+        pot = uri.split("/")[1]
+        try:
+            os.stat("./" + pot)
+        except FileNotFoundError:
+            response = ["HTCPCP-TEA/1.0 404 Not Found", "\r\n", "\r\n"]
+            return response
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

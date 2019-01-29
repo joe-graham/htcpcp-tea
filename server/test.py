@@ -145,5 +145,10 @@ class ParserTests(unittest.TestCase):
       request = self.read_file("tests/malformed_newlines.txt")
       output = parser.main(request)
       self.assertEqual(output, ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"])
+   
+   def test_not_found(self):
+      request = self.read_file("tests/bad_get.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 404 Not Found", "\r\n", "\r\n"])
 
 if __name__ == '__main__':    unittest.main()
