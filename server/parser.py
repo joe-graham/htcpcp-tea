@@ -196,7 +196,9 @@ def brew_handler(uri, headerDict, request):
             newFile = open("./" + fileName, mode="w")
             json.dump(out, newFile, indent=4)
             newFile.close()
-
+        logFile = open("./requests.log", "a")
+        logFile.write("GET " + uri + " HTCPCP-TEA/1.0")
+        logFile.close()
         response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"]
         return response
 
@@ -224,7 +226,10 @@ def get_handler(uri, headerDict, request):
                 return response
         os.remove("./" + pot + "/" + variety)
         os.rmdir("./" + pot)
-        response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"]
+        logFile = open("./requests.log", "a")
+        logFile.write("GET " + uri + " HTCPCP-TEA/1.0")
+        logFile.close()
+        response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/teapot", "\r\n", "\r\n"]
         return response
     else:
         pot = uri.split("/")[1]
@@ -245,7 +250,10 @@ def get_handler(uri, headerDict, request):
                 response = ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"]
                 return response
         os.remove("./" + pot)
-        response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"]
+        logFile = open("./requests.log", "a")
+        logFile.write("GET " + uri + " HTCPCP-TEA/1.0")
+        logFile.close()
+        response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/coffee-pot-command", "\r\n", "\r\n"]
         return response
 
 if __name__ == "__main__":
