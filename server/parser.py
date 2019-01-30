@@ -77,7 +77,7 @@ def parse_request(request, uri, method):
     
     if headerDict["Content-Type"] == "message/coffee-pot-command":
         # If URI has two slashes, it's trying to access a tea pot, and needs a 400
-        if len(uri.split("/")) == 3:
+        if len(uri.split("/")) == 3 and method != "GET":
             response = ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"]
             return response
         else:
@@ -97,7 +97,7 @@ def parse_request(request, uri, method):
             response.append("\r\n")
             return response
         # If URI has only one slash, the client is trying to find a coffee pot
-        elif len(uri.split("/")) == 2:
+        elif len(uri.split("/")) == 2 and method != "GET":
             response = ["HTCPCP-TEA/1.0 418 I'm a teapot", "\r\n", "\r\n"]
             return response
         else:
@@ -215,6 +215,9 @@ def get_handler(uri, headerDict, request):
         load = json.load(filePointer)
         acceptableAdditions = load["Additions"].values()
         filePointer.close()
+        if headerDict["Content-Type"] != "message/teapot":
+            response = ["HTCPCP-TEA/1.0 418 I'm a teapot", "\r\n", "\r\n"]
+            return response
         for addition in headerDict["Accept-Additions"]:
             if addition not in acceptableAdditions:
                 response = ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"]
@@ -234,6 +237,9 @@ def get_handler(uri, headerDict, request):
         load = json.load(filePointer)
         acceptableAdditions = load["Additions"].values()
         filePointer.close()
+        if headerDict["Content-Type"] != "message/coffee-pot-command":
+            response = ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"]
+            return response
         for addition in headerDict["Accept-Additions"]:
             if addition not in acceptableAdditions:
                 response = ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"]
