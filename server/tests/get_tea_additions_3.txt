@@ -1,0 +1,4 @@
+GET /pot-1/peppermint
+Content-Type: message/teapot
+Accept-Additions: Half-and-half; Raspberry; Kahlua; Stevia
+

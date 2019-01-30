@@ -211,6 +211,18 @@ def get_handler(uri, headerDict, request):
         except FileNotFoundError:
             response = ["HTCPCP-TEA/1.0 404 Not Found", "\r\n", "\r\n"]
             return response
+        filePointer = open("./" + pot + "/" + variety)
+        load = json.load(filePointer)
+        acceptableAdditions = load["Additions"].values()
+        filePointer.close()
+        for addition in headerDict["Accept-Additions"]:
+            if addition not in acceptableAdditions:
+                response = ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"]
+                return response
+        os.remove("./" + pot + "/" + variety)
+        os.rmdir("./" + pot)
+        response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"]
+        return response
     else:
         pot = uri.split("/")[1]
         try:
@@ -226,6 +238,7 @@ def get_handler(uri, headerDict, request):
             if addition not in acceptableAdditions:
                 response = ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"]
                 return response
+        os.remove("./" + pot)
         response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"]
         return response
 

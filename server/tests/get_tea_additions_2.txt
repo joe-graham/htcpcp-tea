@@ -1,0 +1,4 @@
+GET /pot-0/earl-grey
+Content-Type: message/teapot
+Accept-Additions: Cream; Almond; Rum; Xylitol
+
