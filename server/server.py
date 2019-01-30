@@ -6,6 +6,8 @@ import threading
 import parser
 
 def main(ip, port):
+    """ Initializes server.
+    """
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((ip, int(port)))
     sock.listen(5)
@@ -16,6 +18,10 @@ def main(ip, port):
     return
 
 def handle_connection(socket):
+    """ Handles every connection seen by the server. Converts bytes into parser-expected format,
+    then forwards to parser, sending response back over the socket.
+    socket - the socket corresponding to the client.
+    """
     buffer = b""
     while True:
         data = socket.recv(2048)
@@ -41,6 +47,7 @@ def handle_connection(socket):
     response = parser.main(request)
     for line in response:
         socket.send(bytes(line, "UTF-8"))
+    socket.close()
     return
 
 if __name__ == "__main__":

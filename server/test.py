@@ -36,7 +36,7 @@ class ParserTests(unittest.TestCase):
    def test_coffee(self):
       request = self.read_file("tests/coffee.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/coffee-pot-command\r\n", "\r\n"])
       os.remove("./pot-0")
 
    def test_bad_request(self):
@@ -67,7 +67,7 @@ class ParserTests(unittest.TestCase):
    def test_additions(self):
       request = self.read_file("tests/accept_additions_1.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/teapot\r\n", "\r\n"])
       request = self.read_file("tests/mismatch_tea_additions_1.txt")
       output = parser.main(request)
       self.assertEqual(output, ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"])
@@ -76,25 +76,25 @@ class ParserTests(unittest.TestCase):
       self.assertEqual(output, ["HTCPCP-TEA/1.0 418 I'm a teapot", "\r\n", "\r\n"])
       request = self.read_file("tests/get_tea_additions_1.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/teapot", "\r\n", "\r\n"])
 
       request = self.read_file("tests/accept_additions_2.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/teapot\r\n", "\r\n"])
       request = self.read_file("tests/get_tea_additions_2.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/teapot", "\r\n", "\r\n"])
     
       request = self.read_file("tests/accept_additions_3.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/teapot\r\n", "\r\n"])
       request = self.read_file("tests/get_tea_additions_3.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/teapot", "\r\n", "\r\n"])
 
       request = self.read_file("tests/coffee_additions_1.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/coffee-pot-command\r\n", "\r\n"])
       request = self.read_file("tests/mismatch_coffee_additions_1.txt")
       output = parser.main(request)
       self.assertEqual(output, ["HTCPCP-TEA/1.0 403 Forbidden", "\r\n", "\r\n"])
@@ -103,34 +103,34 @@ class ParserTests(unittest.TestCase):
       self.assertEqual(output, ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"])
       request = self.read_file("tests/get_coffee_additions_1.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/coffee-pot-command", "\r\n", "\r\n"])
 
       request = self.read_file("tests/coffee_additions_2.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/coffee-pot-command\r\n", "\r\n"])
       request = self.read_file("tests/get_coffee_additions_2.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/coffee-pot-command", "\r\n", "\r\n"])
     
       request = self.read_file("tests/coffee_additions_3.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/coffee-pot-command\r\n", "\r\n"])
       request = self.read_file("tests/get_coffee_additions_3.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/coffee-pot-command", "\r\n", "\r\n"])
 
 
    def test_start(self):
       request = self.read_file("tests/start.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/teapot\r\n", "\r\n"])
       os.remove("./pot-0/peppermint")
       os.rmdir("./pot-0")
 
    def test_stop(self):
       request = self.read_file("tests/stop.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/teapot\r\n", "\r\n"])
       os.remove("./pot-0/peppermint")
       os.rmdir("./pot-0")
 

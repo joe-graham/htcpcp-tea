@@ -37,6 +37,7 @@ def parse_request(request, uri, method):
     request - array of strings representing request
     uri - The already parsed URI for the request
     method - The method of the request, important for different handling purposes
+    Returns: response to forward to client
     """
     headerDict = dict()
     response = []
@@ -113,6 +114,11 @@ def parse_request(request, uri, method):
 
 def brew_handler(uri, headerDict, request):
     """Handles access control to forbidden teas, verification of additions, and body validation.
+    Parameters:
+    uri - URI of the request
+    headerDict - dictionary containing all headers from request
+    request - remaining parts of request to parse
+    Returns: response to forward to client
     """
     response = []
     # only verify this if brewing tea
@@ -178,6 +184,7 @@ def brew_handler(uri, headerDict, request):
             newFile = open("./" + dirName + "/" + fileName, mode="w")
             json.dump(out, newFile, indent=4)
             newFile.close()
+            response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/teapot" "\r\n", "\r\n"]
         else:
             fileName = uri.split("/")[1]
             ls = os.listdir('.')
@@ -196,13 +203,21 @@ def brew_handler(uri, headerDict, request):
             newFile = open("./" + fileName, mode="w")
             json.dump(out, newFile, indent=4)
             newFile.close()
+            response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/coffee-pot-command" "\r\n", "\r\n"]
         logFile = open("./requests.log", "a")
-        logFile.write("GET " + uri + " HTCPCP-TEA/1.0")
+        logFile.write("GET " + uri + " HTCPCP-TEA/1.0\n")
         logFile.close()
-        response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "\r\n"]
         return response
 
 def get_handler(uri, headerDict, request):
+    """ Handles all GET requests, including verifying that pots exist and that
+    additions in GET request match acceptable additions in JSON file.
+    Parameters:
+    uri - URI of request
+    headerDict - dictionary of headers in request
+    request - remaining parts of request to parse
+    Returns: response to forward to client
+    """
     length = len(uri.split("/"))
     # if tea, else coffee
     if length == 3:
@@ -227,7 +242,7 @@ def get_handler(uri, headerDict, request):
         os.remove("./" + pot + "/" + variety)
         os.rmdir("./" + pot)
         logFile = open("./requests.log", "a")
-        logFile.write("GET " + uri + " HTCPCP-TEA/1.0")
+        logFile.write("GET " + uri + " HTCPCP-TEA/1.0\n")
         logFile.close()
         response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/teapot", "\r\n", "\r\n"]
         return response
@@ -251,7 +266,7 @@ def get_handler(uri, headerDict, request):
                 return response
         os.remove("./" + pot)
         logFile = open("./requests.log", "a")
-        logFile.write("GET " + uri + " HTCPCP-TEA/1.0")
+        logFile.write("GET " + uri + " HTCPCP-TEA/1.0\n")
         logFile.close()
         response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/coffee-pot-command", "\r\n", "\r\n"]
         return response
