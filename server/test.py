@@ -177,22 +177,50 @@ class ParserTests(unittest.TestCase):
       output = parser.main(request)
       self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", 
          "Content-Type: text/plain", "\r\n",
-         b"<pre>Array\n(\n)\n</pre><pre>Array\n(\n)\n</pre>", "\r\n"])
+         "<pre>Array\r\n", "(\r\n", ")\r\n",
+         "</pre><pre>Array\r\n","(\r\n", ")\r\n",
+         "</pre>\r\n", "\r\n"])
 
       request = self.read_file("tests/php_get_param.txt")
       output = parser.main(request)
       self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", 
          "Content-Type: text/plain", "\r\n",
-         b"<pre>Array\n(\n    [testvar] => test\n)\n</pre><pre>Array\n(\n)\n</pre>", "\r\n"])
+         "<pre>Array\r\n", "(\r\n", "    [testvar] => test\r\n", ")\r\n",
+         "</pre><pre>Array\r\n","(\r\n", ")\r\n",
+         "</pre>\r\n", "\r\n"])
       
       request = self.read_file("tests/php_get_params.txt")
       output = parser.main(request)
-      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", 
-         "Content-Type: text/plain", "\r\n",
-         b"<pre>Array\n(\n    [testvar] => test\n    [testvar2] => test\n)\n</pre><pre>Array\n(\n)\n</pre>", "\r\n"])
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: text/plain", "\r\n",
+         "<pre>Array\r\n", "(\r\n", "    [testvar] => test\r\n", 
+         "    [testvar2] => test\r\n", ")\r\n",
+         "</pre><pre>Array\r\n","(\r\n", ")\r\n",
+         "</pre>\r\n", "\r\n"])
 
       request = self.read_file("tests/php_get_404.txt")
       output = parser.main(request)
       self.assertEqual(output, ["HTCPCP-TEA/1.0 404 Not Found", "\r\n", "\r\n"])
+
+      request = self.read_file("tests/php_post.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: text/plain", "\r\n",
+      "<pre>Array\r\n", "(\r\n", ")\r\n",
+      "</pre><pre>Array\r\n","(\r\n", ")\r\n",
+      "</pre>\r\n", "\r\n"])
+
+      request = self.read_file("tests/php_post_param.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: text/plain", "\r\n",
+         "<pre>Array\r\n", "(\r\n", ")\r\n",
+         "</pre><pre>Array\r\n", "(\r\n", "    [testvar] => test\r\n", ")\r\n",
+         "</pre>\r\n", "\r\n"])
+
+      request = self.read_file("tests/php_post_params.txt")
+      output = parser.main(request)
+      self.assertEqual(output, ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: text/plain", "\r\n",
+         "<pre>Array\r\n", "(\r\n", ")\r\n",
+         "</pre><pre>Array\r\n", "(\r\n", "    [testvar] => test\r\n",
+         "    [testvar2] => test\r\n", ")\r\n", 
+         "</pre>\r\n", "\r\n"])
 
 if __name__ == '__main__':    unittest.main()

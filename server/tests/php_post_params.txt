@@ -1,0 +1,3 @@
+POST /test.php
+
+testvar=test&testvar2=test

@@ -311,13 +311,20 @@ def php_handler(uri, headerDict, method, request, filename):
         envVars["QUERY_STRING"] = queryString
         envVars["SCRIPT_FILENAME"] = filename
         envVars["REDIRECT_STATUS"] = "0"
+        envVars["REQUEST_METHOD"] = "GET"
         envVars["PATH"] = path
         try:
-            body = subprocess.check_output(["php-cgi", "-q", filename], env=envVars)
+            output = subprocess.check_output(["php-cgi", filename], env=envVars)
         except subprocess.CalledProcessError as e:
-            if e.returncode == 255 and e.output == b"No input file specified.\n":
-                response = ["HTCPCP-TEA/1.0 404 Not Found", "\r\n", "\r\n"]
-                return response
+            if e.returncode == 255:
+                try:
+                    status = e.output.decode("UTF-8").split("\r\n")[0]
+                    if status == "Status: 404 Not Found":
+                        response = ["HTCPCP-TEA/1.0 404 Not Found", "\r\n", "\r\n"]
+                        return response
+                except Exception:
+                    response = ["HTCPCP-TEA/1.0 500 Internal Server Error", "\r\n", "\r\n"]
+                    return response
             else:
                 response = ["HTCPCP-TEA/1.0 500 Internal Server Error", "\r\n", "\r\n"]
                 return response
@@ -326,7 +333,7 @@ def php_handler(uri, headerDict, method, request, filename):
         if len(request) == 2:
             body = request[1].decode("UTF-8")
         else:
-            body = request[0]
+            body = ""
         # parse body of request, which will have params for PHP script
         envVars = {}
         envVars["SCRIPT_FILENAME"] = filename
@@ -336,8 +343,11 @@ def php_handler(uri, headerDict, method, request, filename):
         envVars["CONTENT_TYPE"] = "application/x-www-form-urlencoded"
         envVars["PATH"] = path
 
+        if "&" in body:
+            body = body.replace('&', '\&')
+
         try:
-            body = subprocess.check_output("echo " + str(body) + " | php-cgi -q " + filename, env=envVars, shell=True)
+            output = subprocess.check_output("echo " + body + " | php-cgi -q " + filename, env=envVars, shell=True)
         except subprocess.CalledProcessError as e:
             if e.returncode == 255 and e.output == b"No input file specified.\n":
                 response = ["HTCPCP-TEA/1.0 404 Not Found", "\r\n", "\r\n"]
@@ -345,9 +355,12 @@ def php_handler(uri, headerDict, method, request, filename):
             else:
                 response = ["HTCPCP-TEA/1.0 500 Internal Server Error", "\r\n", "\r\n"]
                 return response
-        
-        
-    response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: text/plain", "\r\n", body, "\r\n"]
+
+    split = output.decode("UTF-8").split("\n")[3:]
+    response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: text/plain", "\r\n"]
+    for item in split:
+        response.append(item + "\r\n")
+    response.append("\r\n")
     return response
 
 if __name__ == "__main__":

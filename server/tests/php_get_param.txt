@@ -1,3 +1,2 @@
 GET /test.php?testvar=test
 
-var1=foo
