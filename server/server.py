@@ -32,6 +32,7 @@ def handle_connection(socket):
     # is normally stripped by .split().
     while True:
         if buffer == "":
+            request.append(bytes(splitStr, "UTF-8"))
             break
         splitStr += buffer[0]
         if buffer[0] == "\n":
