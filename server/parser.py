@@ -285,6 +285,7 @@ def get_handler(uri, headerDict, request):
         return response
 
 def php_handler(uri, headerDict, method, request, filename):
+    # Verify file exists, since 
     body = ""
     # Figure out location of php-cgi, since env vars aren't inherited by future subprocess call
     try:
@@ -311,7 +312,14 @@ def php_handler(uri, headerDict, method, request, filename):
         envVars["SCRIPT_FILENAME"] = filename
         envVars["REDIRECT_STATUS"] = "0"
         envVars["PATH"] = path
-        body = subprocess.check_output(["php-cgi", "-q", filename], env=envVars)
+        try:
+            body = subprocess.check_output(["php-cgi", "-q", filename], env=envVars)
+        except subprocess.CalledProcessError as e:
+            if e.returncode == 255 and e.output == b"No input file specified.\n":
+                response = ["HTCPCP-TEA/1.0 404 Not Found", "\r\n", "\r\n"]
+                return response
+            else:
+                response = ["HTCPCP-TEA/1.0 500 Internal Server Error", "\r\n", "\r\n"]
     # only GET or POST allowed for PHP, so else is fine
     #else:
         
