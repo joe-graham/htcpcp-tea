@@ -76,7 +76,7 @@ def parse_request(request, uri, method):
     regexp = re.match("^\/[A-Za-z]*\.php", uri)
     if regexp:
         filename = regexp.group().lstrip("/")
-        response = php_handler(uri, headerDict, method, request, filename)
+        response = php_handler(uri, method, request, filename)
         return response
     # verify headers ended with a crlf
     newline = request[0]
@@ -284,8 +284,14 @@ def get_handler(uri, headerDict, request):
         response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/coffee-pot-command", "\r\n", "\r\n"]
         return response
 
-def php_handler(uri, headerDict, method, request, filename):
-    # Verify file exists, since 
+def php_handler(uri, method, request, filename):
+    """ Handles any requests involving a PHP script.
+    Arguments:
+    uri - Used for parsing arguments
+    method - POST or GET
+    request - Body of request, contains parameters for PHP script
+    filename - Name of PHP script to pass to php-cgi
+    """
     # Figure out location of php-cgi, since env vars aren't inherited by future subprocess call
     try:
         output = subprocess.check_output(["which", "php-cgi"])
@@ -293,6 +299,7 @@ def php_handler(uri, headerDict, method, request, filename):
         response = ["HTCPCP-TEA/1.0 500 Internal Server Error", "\r\n", "Content-Type: text/plain", "\r\n", "\r\n"]
         print("Unable to find php-cgi, make sure your $PATH variable contains it")
         return response
+    # Parse PATH variable
     stdout = output.decode("UTF-8")
     split = stdout.split("/")
     path = "/"
@@ -301,6 +308,7 @@ def php_handler(uri, headerDict, method, request, filename):
         if item != "php-cgi" and item != "":
             path += item + "/"
     path = path.rstrip("/")
+    # GET requests use a query string
     if method == "GET":
         body = ""
         if "?" in uri:
@@ -318,6 +326,7 @@ def php_handler(uri, headerDict, method, request, filename):
         except subprocess.CalledProcessError as e:
             if e.returncode == 255:
                 try:
+                    # Handle 404
                     status = e.output.decode("UTF-8").split("\r\n")[0]
                     if status == "Status: 404 Not Found":
                         response = ["HTCPCP-TEA/1.0 404 Not Found", "\r\n", "\r\n"]
@@ -330,6 +339,8 @@ def php_handler(uri, headerDict, method, request, filename):
                 return response
     # only GET or POST allowed for PHP, so else is fine
     else:
+        # POST requests are handled by taking the content of the body of the request
+        # and echoing it into stdin of php-cgi
         if len(request) == 2:
             body = request[1].decode("UTF-8")
         else:
@@ -356,6 +367,7 @@ def php_handler(uri, headerDict, method, request, filename):
                 response = ["HTCPCP-TEA/1.0 500 Internal Server Error", "\r\n", "\r\n"]
                 return response
 
+    # Remove errant headers added by php-cgi
     split = output.decode("UTF-8").split("\n")[3:]
     response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: text/plain", "\r\n"]
     for item in split:
