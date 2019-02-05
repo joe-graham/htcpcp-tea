@@ -286,7 +286,6 @@ def get_handler(uri, headerDict, request):
 
 def php_handler(uri, headerDict, method, request, filename):
     # Verify file exists, since 
-    body = ""
     # Figure out location of php-cgi, since env vars aren't inherited by future subprocess call
     try:
         output = subprocess.check_output(["which", "php-cgi"])
@@ -303,6 +302,7 @@ def php_handler(uri, headerDict, method, request, filename):
             path += item + "/"
     path = path.rstrip("/")
     if method == "GET":
+        body = ""
         if "?" in uri:
             queryString = uri.split("?")[1]
         else:
@@ -320,8 +320,32 @@ def php_handler(uri, headerDict, method, request, filename):
                 return response
             else:
                 response = ["HTCPCP-TEA/1.0 500 Internal Server Error", "\r\n", "\r\n"]
+                return response
     # only GET or POST allowed for PHP, so else is fine
-    #else:
+    else:
+        if len(request) == 2:
+            body = request[1].decode("UTF-8")
+        else:
+            body = request[0]
+        # parse body of request, which will have params for PHP script
+        envVars = {}
+        envVars["SCRIPT_FILENAME"] = filename
+        envVars["REQUEST_METHOD"] = "POST"
+        envVars["REDIRECT_STATUS"] = "0"
+        envVars["CONTENT_LENGTH"] = str(len(body))
+        envVars["CONTENT_TYPE"] = "application/x-www-form-urlencoded"
+        envVars["PATH"] = path
+
+        try:
+            body = subprocess.check_output("echo " + str(body) + " | php-cgi -q " + filename, env=envVars, shell=True)
+        except subprocess.CalledProcessError as e:
+            if e.returncode == 255 and e.output == b"No input file specified.\n":
+                response = ["HTCPCP-TEA/1.0 404 Not Found", "\r\n", "\r\n"]
+                return response
+            else:
+                response = ["HTCPCP-TEA/1.0 500 Internal Server Error", "\r\n", "\r\n"]
+                return response
+        
         
     response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: text/plain", "\r\n", body, "\r\n"]
     return response
