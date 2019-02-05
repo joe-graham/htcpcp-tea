@@ -3,6 +3,8 @@
 import sys
 import os
 import json
+import subprocess
+import re
 
 def main(request):
     """ Start everything off, doing minor method checks.
@@ -17,8 +19,9 @@ def main(request):
     method = methodLineSplit[0]
     uri = methodLineSplit[1]
     response = []
-    # modularity, since POST handling changes in the next assignment
-    MODE = "deprecated"
+    # if you want to support php POST requests, change this variable to "php"
+    # if you don't, change this variable to "deprecated"
+    MODE = "php"
 
     if method == "BREW" or method == "GET":
         request.remove(request[0])
@@ -26,6 +29,10 @@ def main(request):
         return response
     elif method == "POST" and MODE == "deprecated":
         response = ["HTCPCP-TEA/1.0 400 Bad Request", "\r\n", "\r\n"]
+        return response
+    elif method == "POST" and MODE == "php":
+        request.remove(request[0])
+        response = parse_request(request, uri, method)
         return response
     else:
         response = ["HTCPCP-TEA/1.0 405 Method Not Allowed", "\r\n", "\r\n"]
@@ -65,6 +72,12 @@ def parse_request(request, uri, method):
             headerDict[lineSplit[0]] = lineSplit[1].strip()
         request.remove(line)
     
+    # pass on to PHP parser if URI matches
+    regexp = re.match("^\/[A-Za-z]*\.php", uri)
+    if regexp:
+        filename = regexp.group().lstrip("/")
+        response = php_handler(uri, headerDict, method, request, filename)
+        return response
     # verify headers ended with a crlf
     newline = request[0]
     if line[-1] != 10 or line[-2] != 13:
@@ -270,6 +283,40 @@ def get_handler(uri, headerDict, request):
         logFile.close()
         response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: message/coffee-pot-command", "\r\n", "\r\n"]
         return response
+
+def php_handler(uri, headerDict, method, request, filename):
+    body = ""
+    # Figure out location of php-cgi, since env vars aren't inherited by future subprocess call
+    try:
+        output = subprocess.check_output(["which", "php-cgi"])
+    except subprocess.CalledProcessError:
+        response = ["HTCPCP-TEA/1.0 500 Internal Server Error", "\r\n", "Content-Type: text/plain", "\r\n", "\r\n"]
+        print("Unable to find php-cgi, make sure your $PATH variable contains it")
+        return response
+    stdout = output.decode("UTF-8")
+    split = stdout.split("/")
+    path = "/"
+    for item in split:
+        item = item.strip()
+        if item != "php-cgi" and item != "":
+            path += item + "/"
+    path = path.rstrip("/")
+    if method == "GET":
+        if "?" in uri:
+            queryString = uri.split("?")[1]
+        else:
+            queryString = ""
+        envVars = {}
+        envVars["QUERY_STRING"] = queryString
+        envVars["SCRIPT_FILENAME"] = filename
+        envVars["REDIRECT_STATUS"] = "0"
+        envVars["PATH"] = path
+        body = subprocess.check_output(["php-cgi", "-q", filename], env=envVars)
+    # only GET or POST allowed for PHP, so else is fine
+    #else:
+        
+    response = ["HTCPCP-TEA/1.0 200 OK", "\r\n", "Content-Type: text/plain", "\r\n", body, "\r\n"]
+    return response
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

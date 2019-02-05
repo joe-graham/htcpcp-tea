@@ -23,12 +23,8 @@ def handle_connection(socket):
     socket - the socket corresponding to the client.
     """
     buffer = b""
-    while True:
-        data = socket.recv(2048)
-        if data:
-            buffer += data
-        else: break
-    buffer = buffer.decode("UTF-8")
+    data = socket.recv(2048)
+    buffer = data.decode("UTF-8")
     splitStr = ""
     request = []
     # convert bytes read in to request format, splitting on the new line
